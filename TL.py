@@ -70,8 +70,8 @@ class StreamListener(tp.StreamListener):
                 is_get = False
             # 取得開始
             if is_get:
-                is_geted = False
                 for image in status_media['media']:
+                    is_geted = False
                     if image['type'] != 'photo':
                         break
                     # URL, ファイル名を取得
@@ -86,7 +86,7 @@ class StreamListener(tp.StreamListener):
                         current_md5 = hashlib.md5(f.read()).hexdigest()
                         f.close()
                         # すでに取得済みの画像は飛ばす
-                        for geted_md5 in file_md5:
+                        for geted_md5 in self.file_md5:
                             if current_md5 == geted_md5:
                                 is_geted = True
                                 break
