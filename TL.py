@@ -111,11 +111,7 @@ class StreamListener(tp.StreamListener):
                                 dst = image[y:y+height, x:x+width]
                                 new_image_path = self.face_dir + filename + '_' + str(i) + ext
                                 cv2.imwrite(new_image_path, dst)
-                            for rect in facerect:
-                                break
-                                cv2.rectangle(image, tuple(rect[0:2]),
-                                            tuple(rect[0:2] + rect[2:4]),
-                                            self.color, thickness=2)
+                            # 画像本体を保存
                             cv2.imwrite(self.raw_dir + filename + ext, image)
                             # 取得済みとしてMD5を保存
                             self.file_md5.append(current_md5)
