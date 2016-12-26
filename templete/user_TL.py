@@ -84,19 +84,9 @@ def get_media_tweet(status):
                     os.remove(filename + ext)
                     fileno += 1
             except IOError:
-                print("Error")
+                print("Error")           
 
-def get_oauth():
-    """oauth.pyのoauth_keysから各種キーを取得し、OAUTH認証を行う"""
-    consumer_key, consumer_secret = \
-        oauth.oauth_keys['CONSUMMER_KEY'], oauth.oauth_keys['CONSUMMER_SECRET']
-    access_key, access_secret = \
-        oauth.oauth_keys['ACCESS_TOKEN_KEY'], oauth.oauth_keys['ACCESS_TOKEN_SECRET']
-    auth = tp.OAuthHandler(consumer_key, consumer_secret)
-    auth.set_access_token(access_key, access_secret)
-    return auth               
-
-api = tp.API(get_oauth())
+api = tp.API(oauth.get_oauth())
 end_id = 0
 for i in range(1,50):
     try:

@@ -1,0 +1,119 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.8	//
+StreamListener	TL.py	/^class StreamListener(tp.StreamListener):$/;"	kind:class	line:20
+TL.py	TL.py	1;"	kind:file	line:1
+__init__	TL.py	/^    def __init__(self, api=None):$/;"	kind:member	line:35
+api	templete/user_TL.py	/^api = tp.API(get_oauth())$/;"	kind:variable	line:99
+cap	movie_face.py	/^    cap = cv2.VideoCapture(filename)$/;"	kind:variable	line:19
+cascade	local.py	/^cascade = cv2.CascadeClassifier(cascade_path)$/;"	kind:variable	line:15
+cascade	templete/user_TL.py	/^cascade = cv2.CascadeClassifier(cascade_path)$/;"	kind:variable	line:11
+cascade_path	local.py	/^cascade_path = ".\/haarcascade_eye.xml"$/;"	kind:variable	line:12
+cascade_path	movie_face.py	/^cascade_path = ".\/lbpcascade_animeface.xml"$/;"	kind:variable	line:4
+cascade_path	templete/user_TL.py	/^cascade_path = ".\/lbpcascade_animeface.xml"$/;"	kind:variable	line:9
+check	local.py	/^check = 0$/;"	kind:variable	line:18
+check	test.py	/^check = 0$/;"	kind:variable	line:14
+color	local.py	/^color = (255, 0, 0)$/;"	kind:variable	line:14
+color	test.py	/^        color = cv2.cvtColor(image, cv2.COLOR_BGR2HSV_FULL)$/;"	kind:variable	line:21
+color_dir	test.py	/^                            color_dir = ""$/;"	kind:variable	line:73
+color_dir	test.py	/^                            color_dir = "blue\/"$/;"	kind:variable	line:65
+color_dir	test.py	/^                            color_dir = "bluegreen\/"$/;"	kind:variable	line:59
+color_dir	test.py	/^                            color_dir = "green\/"$/;"	kind:variable	line:57
+color_dir	test.py	/^                            color_dir = "lightblue\/"$/;"	kind:variable	line:63
+color_dir	test.py	/^                            color_dir = "orange\/"$/;"	kind:variable	line:51
+color_dir	test.py	/^                            color_dir = "pink\/"$/;"	kind:variable	line:69
+color_dir	test.py	/^                            color_dir = "purple\/"$/;"	kind:variable	line:67
+color_dir	test.py	/^                            color_dir = "red\/"$/;"	kind:variable	line:49
+color_dir	test.py	/^                            color_dir = "vividpink\/"$/;"	kind:variable	line:71
+color_dir	test.py	/^                            color_dir = "waterblue\/"$/;"	kind:variable	line:61
+color_dir	test.py	/^                            color_dir = "yellow\/"$/;"	kind:variable	line:53
+color_dir	test.py	/^                            color_dir = "yellowgreen\/"$/;"	kind:variable	line:55
+color_dir	test.py	/^                        color_dir = "white\/"$/;"	kind:variable	line:46
+color_dir	test.py	/^                    color_dir = "black\/"$/;"	kind:variable	line:75
+color_dir	test.py	/^color_dir = ""$/;"	kind:variable	line:9
+croped	movie_face.py	/^                croped = image[rect[1]:rect[1]+rect[3],rect[0]:rect[0]+rect[2]]$/;"	kind:variable	line:31
+cv2	TL.py	/^import cv2$/;"	kind:namespace	line:7
+cv2	local.py	/^import cv2$/;"	kind:namespace	line:2
+cv2	movie_face.py	/^import cv2$/;"	kind:namespace	line:2
+cv2	templete/user_TL.py	/^import cv2$/;"	kind:namespace	line:5
+cv2	test.py	/^import cv2$/;"	kind:namespace	line:4
+data_dir	templete/md5.py	/^data_dir = ""$/;"	kind:variable	line:4
+datetime	TL.py	/^import datetime$/;"	kind:namespace	line:4
+deleted	templete/md5.py	/^            deleted = True$/;"	kind:variable	line:16
+deleted	templete/md5.py	/^    deleted = False$/;"	kind:variable	line:8
+detectFace	movie_face.py	/^def detectFace(image):$/;"	kind:function	line:9
+detector	test.py	/^detector = dlib.simple_object_detector("detector.svm")$/;"	kind:variable	line:6
+dets	test.py	/^    dets = detector(img)$/;"	kind:variable	line:24
+dlib	test.py	/^import dlib$/;"	kind:namespace	line:3
+dst	local.py	/^            dst = image[y:y+height, x:x+width]$/;"	kind:variable	line:36
+end_id	templete/user_TL.py	/^            end_id = str(status.id)$/;"	kind:variable	line:106
+end_id	templete/user_TL.py	/^end_id = 0$/;"	kind:variable	line:100
+eye_dir	test.py	/^eye_dir = ".\/eye_face_test\/"$/;"	kind:variable	line:8
+f	templete/md5.py	/^    f = open(data_dir + filename,"rb")$/;"	kind:variable	line:9
+face_base_path	movie_face.py	/^face_base_path = ".\/face\/"$/;"	kind:variable	line:6
+face_dir	local.py	/^face_dir = ".\/face\/"$/;"	kind:variable	line:8
+faceframenum	movie_face.py	/^faceframenum = 0$/;"	kind:variable	line:7
+facerect	local.py	/^                                            minSize=(16, 16))$/;"	kind:variable	line:27
+facerect	movie_face.py	/^            facerect = detectFace(image)$/;"	kind:variable	line:28
+file_dir	local.py	/^file_dir = ".\/pos\/"$/;"	kind:variable	line:4
+file_dir	test.py	/^file_dir = ".\/face\/"$/;"	kind:variable	line:7
+file_md5	templete/user_TL.py	/^file_md5 = []$/;"	kind:variable	line:14
+filename	local.py	/^    filename = file_dir + temp$/;"	kind:variable	line:21
+filename	movie_face.py	/^    filename = movie_path + movie$/;"	kind:variable	line:18
+filename	test.py	/^    filename = file_dir + temp$/;"	kind:variable	line:17
+fileno	templete/user_TL.py	/^fileno = 0$/;"	kind:variable	line:13
+framenum	movie_face.py	/^    framenum = 0$/;"	kind:variable	line:22
+get_media_tweet	templete/user_TL.py	/^def get_media_tweet(status):$/;"	kind:function	line:16
+get_oauth	TL.py	/^def get_oauth():$/;"	kind:function	line:10
+get_oauth	templete/user_TL.py	/^def get_oauth():$/;"	kind:function	line:89
+gray	local.py	/^    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)$/;"	kind:variable	line:23
+h	test.py	/^                h = color[width_center,height_center,0]$/;"	kind:variable	line:38
+h	test.py	/^                h = h * (360 \/ 256)$/;"	kind:variable	line:42
+hashlib	TL.py	/^import hashlib$/;"	kind:namespace	line:5
+hashlib	templete/md5.py	/^import hashlib$/;"	kind:namespace	line:1
+hashlib	templete/user_TL.py	/^import hashlib$/;"	kind:namespace	line:2
+height_center	test.py	/^                height_center = (d.top()+d.bottom()) \/ 2$/;"	kind:variable	line:34
+image	local.py	/^    image = cv2.imread(filename)$/;"	kind:variable	line:22
+image	test.py	/^        image = cv2.imread(filename)$/;"	kind:variable	line:19
+img	test.py	/^        img = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)$/;"	kind:variable	line:20
+local.py	local.py	1;"	kind:file	line:1
+main	TL.py	/^def main():$/;"	kind:function	line:123
+md5	templete/md5.py	/^    md5 = hashlib.md5(f.read()).hexdigest()$/;"	kind:variable	line:10
+md5.py	templete/md5.py	1;"	kind:file	line:1
+md5_data	templete/md5.py	/^md5_data = []$/;"	kind:variable	line:5
+mkdir	TL.py	/^    def mkdir(self):$/;"	kind:member	line:22
+movie_face.py	movie_face.py	1;"	kind:file	line:1
+movie_path	movie_face.py	/^movie_path = ".\/movie\/"$/;"	kind:variable	line:5
+new_image_path	local.py	/^            new_image_path = face_dir + temp$/;"	kind:variable	line:37
+oauth	TL.py	/^import oauth  # oauthの認証キー$/;"	kind:namespace	line:8
+oauth	templete/user_TL.py	/^import oauth$/;"	kind:namespace	line:6
+oauth.py	oauth.py	1;"	kind:file	line:1
+oauth_empty.py	templete/oauth_empty.py	1;"	kind:file	line:1
+oauth_keys	oauth.py	/^oauth_keys = {$/;"	kind:variable	line:1
+oauth_keys	templete/oauth_empty.py	/^oauth_keys = {$/;"	kind:variable	line:1
+on_status	TL.py	/^    def on_status(self, status):$/;"	kind:member	line:43
+os	TL.py	/^import os$/;"	kind:namespace	line:2
+os	local.py	/^import os$/;"	kind:namespace	line:1
+os	movie_face.py	/^import os$/;"	kind:namespace	line:1
+os	templete/md5.py	/^import os$/;"	kind:namespace	line:2
+os	templete/user_TL.py	/^import os$/;"	kind:namespace	line:1
+os	test.py	/^import os$/;"	kind:namespace	line:1
+raw_dir	local.py	/^raw_dir = ".\/raw\/"$/;"	kind:variable	line:5
+rect_color	test.py	/^rect_color = (255, 0, 0)$/;"	kind:variable	line:11
+s	test.py	/^                s = color[width_center,height_center,1]$/;"	kind:variable	line:39
+skip	local.py	/^skip = 0$/;"	kind:variable	line:17
+skip	test.py	/^skip = 0$/;"	kind:variable	line:13
+sys	test.py	/^import sys$/;"	kind:namespace	line:2
+temp	templete/user_TL.py	/^        temp = api.user_timeline(screen_name="",page=i)$/;"	kind:variable	line:103
+test.py	test.py	1;"	kind:file	line:1
+time	TL.py	/^import time$/;"	kind:namespace	line:3
+tp	TL.py	/^import tweepy as tp$/;"	kind:namespace	line:6
+tp	templete/user_TL.py	/^import tweepy as tp$/;"	kind:namespace	line:4
+urllib	TL.py	/^import urllib$/;"	kind:namespace	line:1
+urllib	templete/user_TL.py	/^import urllib$/;"	kind:namespace	line:3
+user_TL.py	templete/user_TL.py	1;"	kind:file	line:1
+v	test.py	/^                v = color[width_center,height_center,2]$/;"	kind:variable	line:40
+width_center	test.py	/^                width_center = (d.left()+d.right()) \/ 2$/;"	kind:variable	line:33
