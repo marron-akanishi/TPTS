@@ -140,6 +140,8 @@ def main():
     while True:
         try:
             stream.userstream()
+        except KeyboardInterrupt:
+            exit()
         except:
             print('UserStream Error')
             time.sleep(60)
