@@ -15,11 +15,13 @@ class StreamListener(tp.StreamListener):
         if os.path.exists(self.base_path) == False:
             os.mkdir(self.base_path)
         self.fileno = 0
+        self.errorno = 0
         self.file_md5 = []
+        self.filelist = open(self.base_path+"list.txt", "w")
 
-    def __init__(self, api=None):
+    def __init__(self, api):
         """コンストラクタ"""
-        self.api = api or tp.API()
+        self.api = api
         # 保存先
         self.old_date = datetime.date.today()
         self.mkdir()
@@ -36,7 +38,11 @@ class StreamListener(tp.StreamListener):
         # 日付の確認
         now = datetime.date.today()
         if now != self.old_date:
+            # 回収枚数をツイート
+            self.api.update_status(\
+                self.old_date.isoformat() + "の回収枚数は" + str(self.fileno - self.errorno) + "枚だと思う。")
             self.old_date = now
+            self.filelist.close()
             self.mkdir()
         # 複数枚の画像ツイートのとき
         if hasattr(status, "extended_entities"):
@@ -63,10 +69,10 @@ class StreamListener(tp.StreamListener):
                     # URL, ファイル名を取得
                     media_url = image['media_url']
                     root, ext = os.path.splitext(media_url)
-                    filename = str(self.fileno).zfill(10)
+                    filename = str(self.fileno).zfill(5)
                     # スクレイピングと顔検出
                     try:
-                        urllib.request.urlretrieve(media_url, filename + ext)
+                        urllib.request.urlretrieve(media_url + ":large", filename + ext)
                         # md5の取得
                         temp = open(filename + ext, "rb")
                         current_md5 = hashlib.md5(temp.read()).hexdigest()
@@ -77,7 +83,7 @@ class StreamListener(tp.StreamListener):
                                 is_geted = True
                                 break
                         if is_geted:
-                            print("geted : " + status.user.screen_name +"-" + filename + ext)
+                            print("geted  : " + status.user.screen_name +"-" + filename + ext)
                             os.remove(filename + ext)
                             continue
                         image = cv2.imread(filename + ext)
@@ -92,7 +98,7 @@ class StreamListener(tp.StreamListener):
                             os.remove(filename + ext)
                         else:
                             eye = False #目の状態
-                            # 顔だけ切り出して保存
+                            # 顔だけ切り出して目の検索
                             for i, area in enumerate(faces):
                                 x, y, width, height = tuple(area[0:4])
                                 face = image[y:y+height, x:x+width]
@@ -110,21 +116,27 @@ class StreamListener(tp.StreamListener):
                                 cv2.imwrite(self.base_path + user_dir + filename + ext, image)
                                 # 取得済みとしてMD5を保存
                                 self.file_md5.append(current_md5)
-                                print("saved : " + status.user.screen_name + "-" + filename + ext)
+                                # リストに保存
+                                self.filelist.write(filename + ext + " : " + "https://twitter.com/" +\
+                                    status.user.screen_name + "/status/" + status.id_str + "\n")
+                                if(self.fileno % 20 == 0):
+                                    self.filelist.flush()
+                                print("saved  : " + status.user.screen_name + "-" + filename + ext)
+                                self.fileno += 1
                             else:
-                                print("noEye : " + status.user.screen_name + "-" + filename + ext)
+                                print("noEye  : " + status.user.screen_name + "-" + filename + ext)
                             os.remove(filename + ext)
-                            self.fileno += 1
                     except IOError:
                         print("Error")
-
+                        # 画像消去エラー対策
+                        self.fileno += 1
+                        self.errorno += 1
 
 def main():
     """メイン関数"""
     auth = oauth.get_oauth()
-    tp.API(auth)
+    stream = tp.Stream(auth, StreamListener(tp.API(auth)), secure=True)
     print('Start Streaming!')
-    stream = tp.Stream(auth, StreamListener(), secure=True)
     while True:
         try:
             stream.userstream()
