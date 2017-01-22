@@ -1,9 +1,11 @@
 import os
-import datetime
 import time
+import datetime
 import hashlib
-import tweepy as tp
 import urllib
+import sqlite3
+import tweepy as tp
+import numpy as np
 import cv2
 import dlib
 import oauth  # oauthの認証キー
@@ -15,9 +17,9 @@ class StreamListener(tp.StreamListener):
         if os.path.exists(self.base_path) == False:
             os.mkdir(self.base_path)
         self.fileno = 0
-        self.errorno = 0
         self.file_md5 = []
-        self.filelist = open(self.base_path+"list.txt", "w")
+        self.dbfile = sqlite3.connect(self.base_path + "list.db")
+        self.dbfile.execute('CREATE TABLE list (filename, username, url)')
 
     def __init__(self, api):
         """コンストラクタ"""
@@ -38,11 +40,9 @@ class StreamListener(tp.StreamListener):
         # 日付の確認
         now = datetime.date.today()
         if now != self.old_date:
-            # 回収枚数をツイート
-            self.api.update_status(\
-                self.old_date.isoformat() + "の回収枚数は" + str(self.fileno - self.errorno) + "枚だと思う。")
             self.old_date = now
-            self.filelist.close()
+            self.dbfile.commit()
+            self.dbfile.close()
             self.mkdir()
         # 複数枚の画像ツイートのとき
         if hasattr(status, "extended_entities"):
@@ -58,12 +58,9 @@ class StreamListener(tp.StreamListener):
         # 画像がついていたとき
         if is_media:
             # 自分のツイートは飛ばす
-            if status.user.screen_name == "marron_general":
-                is_get = False
+            if status.user.screen_name != "marron_general":
             # 取得開始
-            if is_get:
                 for image in status_media['media']:
-                    is_geted = False
                     if image['type'] != 'photo':
                         break
                     # URL, ファイル名を取得
@@ -71,66 +68,47 @@ class StreamListener(tp.StreamListener):
                     root, ext = os.path.splitext(media_url)
                     filename = str(self.fileno).zfill(5)
                     # スクレイピングと顔検出
-                    try:
-                        urllib.request.urlretrieve(media_url + ":large", filename + ext)
-                        # md5の取得
-                        temp = open(filename + ext, "rb")
-                        current_md5 = hashlib.md5(temp.read()).hexdigest()
-                        temp.close()
-                        # すでに取得済みの画像は飛ばす
-                        for geted_md5 in self.file_md5:
-                            if current_md5 == geted_md5:
-                                is_geted = True
-                                break
-                        if is_geted:
-                            print("geted  : " + status.user.screen_name +"-" + filename + ext)
-                            os.remove(filename + ext)
-                            continue
-                        image = cv2.imread(filename + ext)
-                        gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-                        faces = self.cascade.detectMultiScale(gray,\
-                                                            scaleFactor=1.11,\
-                                                            minNeighbors=2,\
-                                                            minSize=(128, 128))
-                        # 二次元の顔が検出できない場合
-                        if len(faces) <= 0:
-                            print("skiped : " + status.user.screen_name +"-" + filename + ext)
-                            os.remove(filename + ext)
+                    temp_file = urllib.request.urlopen(media_url + ":large").read()
+                    # md5の取得
+                    current_md5 = hashlib.md5(temp_file).hexdigest()
+                    # すでに取得済みの画像は飛ばす
+                    if current_md5 in self.file_md5:
+                        print("geted  : " + status.user.screen_name +"-" + filename + ext)
+                        continue
+                    image = cv2.imdecode(np.asarray(bytearray(temp_file), dtype=np.uint8), 1)
+                    faces = self.cascade.detectMultiScale(image,\
+                                                        scaleFactor=1.11,\
+                                                        minNeighbors=2,\
+                                                        minSize=(128, 128))
+                    # 二次元の顔が検出できない場合
+                    if len(faces) <= 0:
+                        print("skiped : " + status.user.screen_name +"-" + filename + ext)
+                    else:
+                        eye = False #目の状態
+                        # 顔だけ切り出して目の検索
+                        for i, area in enumerate(faces):
+                            x, y, width, height = tuple(area[0:4])
+                            face = image[y:y+height, x:x+width]
+                            # 出来た画像から目を検出
+                            eyes = self.eye_detector(face)
+                            if len(eyes) > 0:
+                                eye = True
+                        # 目があったなら画像本体を保存
+                        if eye:
+                            # 保存
+                            out = open(self.base_path + filename + ext, "wb")
+                            out.write(temp_file)
+                            out.close()
+                            # 取得済みとしてMD5を保存
+                            self.file_md5.append(current_md5)
+                            # リストに保存
+                            url = "https://twitter.com/" + status.user.screen_name + "/status/" + status.id_str
+                            self.dbfile.execute("insert into list values('" + filename + ext + "','" + status.user.screen_name + "','" + url + "')")
+                            self.dbfile.commit()
+                            print("saved  : " + status.user.screen_name + "-" + filename + ext)
+                            self.fileno += 1
                         else:
-                            eye = False #目の状態
-                            # 顔だけ切り出して目の検索
-                            for i, area in enumerate(faces):
-                                x, y, width, height = tuple(area[0:4])
-                                face = image[y:y+height, x:x+width]
-                                rgb = cv2.cvtColor(face, cv2.COLOR_BGR2RGB)
-                                # 出来た画像から目を検出
-                                eyes = self.eye_detector(rgb)
-                                if len(eyes) > 0:
-                                    eye = True
-                            # 目があったなら画像本体を保存
-                            if eye:
-                                # ユーザーフォルダーの確認と作成
-                                user_dir = status.user.screen_name + "/"
-                                if os.path.exists(self.base_path + user_dir) == False:
-                                    os.mkdir(self.base_path + user_dir)
-                                cv2.imwrite(self.base_path + user_dir + filename + ext, image)
-                                # 取得済みとしてMD5を保存
-                                self.file_md5.append(current_md5)
-                                # リストに保存
-                                self.filelist.write(filename + ext + " : " + "https://twitter.com/" +\
-                                    status.user.screen_name + "/status/" + status.id_str + "\n")
-                                if(self.fileno % 20 == 0):
-                                    self.filelist.flush()
-                                print("saved  : " + status.user.screen_name + "-" + filename + ext)
-                                self.fileno += 1
-                            else:
-                                print("noEye  : " + status.user.screen_name + "-" + filename + ext)
-                            os.remove(filename + ext)
-                    except IOError:
-                        print("Error")
-                        # 画像消去エラー対策
-                        self.fileno += 1
-                        self.errorno += 1
+                            print("noEye  : " + status.user.screen_name + "-" + filename + ext)
 
 def main():
     """メイン関数"""
