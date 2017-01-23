@@ -7,8 +7,12 @@ import sqlite3
 import tweepy as tp
 import numpy as np
 import cv2
-import dlib
 import oauth  # oauthの認証キー
+try:
+    import dlib
+    use_dlib = True
+except ImportError:
+    use_dlib = False
 
 class StreamListener(tp.StreamListener):
     def mkdir(self):
@@ -29,7 +33,8 @@ class StreamListener(tp.StreamListener):
         self.mkdir()
         # 検出に必要なファイル
         self.cascade = cv2.CascadeClassifier("lbpcascade_animeface.xml")
-        self.eye_detector = dlib.simple_object_detector("detector.svm")
+        if use_dlib:
+            self.eye_detector = dlib.simple_object_detector("detector.svm")
 
     def on_status(self, status):
         """UserStreamから飛んできたStatusを処理する"""
@@ -84,17 +89,18 @@ class StreamListener(tp.StreamListener):
                     if len(faces) <= 0:
                         print("skiped : " + status.user.screen_name +"-" + filename + ext)
                     else:
-                        eye = False #目の状態
-                        # 顔だけ切り出して目の検索
-                        for i, area in enumerate(faces):
-                            x, y, width, height = tuple(area[0:4])
-                            face = image[y:y+height, x:x+width]
-                            # 出来た画像から目を検出
-                            eyes = self.eye_detector(face)
-                            if len(eyes) > 0:
-                                eye = True
+                        if use_dlib:
+                            eye = False #目の状態
+                            # 顔だけ切り出して目の検索
+                            for i, area in enumerate(faces):
+                                x, y, width, height = tuple(area[0:4])
+                                face = image[y:y+height, x:x+width]
+                                # 出来た画像から目を検出
+                                eyes = self.eye_detector(face)
+                                if len(eyes) > 0:
+                                    eye = True
                         # 目があったなら画像本体を保存
-                        if eye:
+                        if eye or use_dlib == False:
                             # 保存
                             out = open(self.base_path + filename + ext, "wb")
                             out.write(temp_file)

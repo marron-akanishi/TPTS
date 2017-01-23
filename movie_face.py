@@ -2,7 +2,9 @@ import os
 import cv2
 
 cascade_path = "./lbpcascade_animeface.xml"
+# 動画ファイルを置くフォルダー
 movie_path = "./movie/"
+# 検出した顔を切り抜いて置くフォルダー
 face_base_path = "./face/"
 faceframenum = 0
 
