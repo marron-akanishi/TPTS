@@ -12,6 +12,7 @@ detector.svm -> 目検出用ファイル
 まず、最新版のPython3をインストールします。  
 その後、pipを使ってtweepyとopencv-pythonをインストールします。  
 次に、templete内にあるoauth_empty.pyにTwitterのAPI情報を入力し、oauth.pyという名前でTL_dlib.pyと同じ位置に置きます。  
+TL_dlib.pyを開き、`# 自分のツイートは飛ばす`と書かれた行の下にある`marron_general`を自分のIDに変更して保存します。
 これで実行が可能になります。  
 また、dlibを導入することによって目を検出し精度を上げることが出来ます。
 
