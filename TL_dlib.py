@@ -15,16 +15,6 @@ except ImportError:
     use_dlib = False
 
 class StreamListener(tp.StreamListener):
-    def mkdir(self):
-        """保存用のフォルダーを生成し、必要な変数を初期化する"""
-        self.base_path = "./" + self.old_date.isoformat() + "/"
-        if os.path.exists(self.base_path) == False:
-            os.mkdir(self.base_path)
-        self.fileno = 0
-        self.file_md5 = []
-        self.dbfile = sqlite3.connect(self.base_path + "list.db")
-        self.dbfile.execute('CREATE TABLE list (filename, username, url)')
-
     def __init__(self, api):
         """コンストラクタ"""
         self.api = api
@@ -40,8 +30,6 @@ class StreamListener(tp.StreamListener):
         """UserStreamから飛んできたStatusを処理する"""
         # Tweetに画像がついているか
         is_media = False
-        # Tweetを保存するか
-        is_get = True
         # 日付の確認
         now = datetime.date.today()
         if now != self.old_date:
@@ -63,17 +51,20 @@ class StreamListener(tp.StreamListener):
         # 画像がついていたとき
         if is_media:
             # 自分のツイートは飛ばす
-            if status.user.screen_name != "marron_general":
-            # 取得開始
+            if status.user.screen_name != "marron_general" or status.user.screen_name != "marron_recbot":
                 for image in status_media['media']:
                     if image['type'] != 'photo':
                         break
-                    # URL, ファイル名を取得
+                    # URL, ファイル名
                     media_url = image['media_url']
                     root, ext = os.path.splitext(media_url)
                     filename = str(self.fileno).zfill(5)
-                    # スクレイピングと顔検出
-                    temp_file = urllib.request.urlopen(media_url + ":large").read()
+                    # ダウンロード
+                    try:
+                        temp_file = urllib.request.urlopen(media_url + ":large").read()
+                    except:
+                        print("Download Error")
+                        continue
                     # md5の取得
                     current_md5 = hashlib.md5(temp_file).hexdigest()
                     # すでに取得済みの画像は飛ばす
@@ -87,10 +78,10 @@ class StreamListener(tp.StreamListener):
                                                         minSize=(128, 128))
                     # 二次元の顔が検出できない場合
                     if len(faces) <= 0:
-                        print("skiped : " + status.user.screen_name +"-" + filename + ext)
+                        print("skiped : " + status.user.screen_name + "-" + filename + ext)
                     else:
+                        eye = False #目の状態
                         if use_dlib:
-                            eye = False #目の状態
                             # 顔だけ切り出して目の検索
                             for i, area in enumerate(faces):
                                 x, y, width, height = tuple(area[0:4])
@@ -100,21 +91,42 @@ class StreamListener(tp.StreamListener):
                                 if len(eyes) > 0:
                                     eye = True
                         # 目があったなら画像本体を保存
-                        if eye or use_dlib == False:
+                        if use_dlib == False or eye:
                             # 保存
                             out = open(self.base_path + filename + ext, "wb")
                             out.write(temp_file)
                             out.close()
                             # 取得済みとしてMD5を保存
                             self.file_md5.append(current_md5)
-                            # リストに保存
+                            # ハッシュタグがあれば保存する
+                            text_split = status.text.split(" ")
+                            tags = []
+                            for tag_text in text_split:
+                                if tag_text.startswith('#'):
+                                    tags.append(tag_text.lstrip("#").split("\n")[0])
+                            # データベースに保存
                             url = "https://twitter.com/" + status.user.screen_name + "/status/" + status.id_str
-                            self.dbfile.execute("insert into list values('" + filename + ext + "','" + status.user.screen_name + "','" + url + "')")
+                            self.dbfile.execute("insert into list values('" + filename + ext + "','" + status.user.screen_name + "','" + url + "','" + str(tags).replace("'","") +"')")
                             self.dbfile.commit()
                             print("saved  : " + status.user.screen_name + "-" + filename + ext)
+                            print("tags   : " + str(tags))
                             self.fileno += 1
                         else:
                             print("noEye  : " + status.user.screen_name + "-" + filename + ext)
+        
+    def mkdir(self):
+        """保存用のフォルダーを生成し、必要な変数を初期化する"""
+        self.base_path = "./" + self.old_date.isoformat() + "/"
+        if os.path.exists(self.base_path) == False:
+            os.mkdir(self.base_path)
+        self.fileno = 0
+        self.file_md5 = []
+        self.dbfile = sqlite3.connect(self.base_path + "list.db")
+        try:
+            self.dbfile.execute("create table list (filename, username, url, tags)")
+        except:
+            None
+
 
 def main():
     """メイン関数"""
@@ -126,7 +138,7 @@ def main():
             stream.userstream()
         except KeyboardInterrupt:
             exit()
-        except:
+        except tp.error.TweepError:
             print('UserStream Error')
             time.sleep(60)
 
