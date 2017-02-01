@@ -21,4 +21,5 @@ local.py -> ローカルファイルから顔を検出(フォルダー等はス�
 movie_face.py -> 動画ファイルから顔を検出(フォルダー等はスクリプト参照)  
 TL.py, test.py -> 残骸  
 templete/md5.py -> 重複検索  
-templete/user_TL.py -> 特定ユーザーの画像をダウンロード
+templete/user_TL.py -> 特定ユーザーの画像をダウンロード  
+bot.py -> リプで指定したファイルを返信する(ほとんど個人向け)
