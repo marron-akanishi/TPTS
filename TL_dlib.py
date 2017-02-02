@@ -37,6 +37,12 @@ class StreamListener(tp.StreamListener):
             self.dbfile.commit()
             self.dbfile.close()
             self.mkdir()
+        # TweetがRTかどうか
+        if hasattr(status, "retweeted_status"):
+            status = status.retweeted_status
+        # Tweetが引用ツイートかどうか
+        if hasattr(status, "quoted_status"):
+            status = status.quoted_status
         # 複数枚の画像ツイートのとき
         if hasattr(status, "extended_entities"):
             if 'media' in status.extended_entities:
@@ -51,7 +57,7 @@ class StreamListener(tp.StreamListener):
         # 画像がついていたとき
         if is_media:
             # 自分のツイートは飛ばす
-            if status.user.screen_name != "marron_general" or status.user.screen_name != "marron_recbot":
+            if status.user.screen_name != "marron_general" and status.user.screen_name != "marron_recbot":
                 for image in status_media['media']:
                     if image['type'] != 'photo':
                         break
@@ -103,13 +109,14 @@ class StreamListener(tp.StreamListener):
                             tags = []
                             for tag_text in text_split:
                                 if tag_text.startswith('#'):
-                                    tags.append(tag_text.lstrip("#").split("\n")[0])
+                                    tags.append(tag_text.lstrip("#").split("\n")[0].split("　")[0])
                             # データベースに保存
                             url = "https://twitter.com/" + status.user.screen_name + "/status/" + status.id_str
-                            self.dbfile.execute("insert into list values('" + filename + ext + "','" + status.user.screen_name + "','" + url + "','" + str(tags).replace("'","") +"')")
+                            self.dbfile.execute("insert into list values('" + filename + ext + "','" + status.user.screen_name + "','" + url + "','" + str(status.favorite_count) + "','" + str(status.retweet_count) + "','" + str(tags).replace("'","") +"')")
                             self.dbfile.commit()
                             print("saved  : " + status.user.screen_name + "-" + filename + ext)
-                            print("tags   : " + str(tags))
+                            if tags != []:
+                                print("  tags : " + str(tags))
                             self.fileno += 1
                         else:
                             print("noEye  : " + status.user.screen_name + "-" + filename + ext)
@@ -123,7 +130,7 @@ class StreamListener(tp.StreamListener):
         self.file_md5 = []
         self.dbfile = sqlite3.connect(self.base_path + "list.db")
         try:
-            self.dbfile.execute("create table list (filename, username, url, tags)")
+            self.dbfile.execute("create table list (filename, username, url, fav, retweet, tags)")
         except:
             None
 
