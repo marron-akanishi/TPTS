@@ -112,7 +112,7 @@ class StreamListener(tp.StreamListener):
                                     tags.append(tag_text.lstrip("#").split("\n")[0].split("　")[0])
                             # データベースに保存
                             url = "https://twitter.com/" + status.user.screen_name + "/status/" + status.id_str
-                            self.dbfile.execute("insert into list values('" + filename + ext + "','" + status.user.screen_name + "','" + url + "','" + str(status.favorite_count) + "','" + str(status.retweet_count) + "','" + str(tags).replace("'","") +"')")
+                            self.dbfile.execute("insert into list values('" + filename + ext + "','" + status.user.screen_name + "','" + url + "'," + str(status.favorite_count) + "," + str(status.retweet_count) + ",'" + str(tags).replace("'","") +"')")
                             self.dbfile.commit()
                             print("saved  : " + status.user.screen_name + "-" + filename + ext)
                             if tags != []:
