@@ -112,7 +112,9 @@ class StreamListener(tp.StreamListener):
                                     tags.append(tag_text.lstrip("#").split("\n")[0].split("　")[0])
                             # データベースに保存
                             url = "https://twitter.com/" + status.user.screen_name + "/status/" + status.id_str
-                            self.dbfile.execute("insert into list values('" + filename + ext + "','" + status.user.screen_name + "','" + url + "'," + str(status.favorite_count) + "," + str(status.retweet_count) + ",'" + str(tags).replace("'","") +"')")
+                            self.dbfile.execute("insert into list values('" + filename + ext + "','" + \
+                                status.user.screen_name + "','" + url + "'," + str(status.favorite_count) + "," + \
+                                str(status.retweet_count) + ",'" + str(tags).replace("'","") + "','" + str(datetime.datetime.now()) +"')")
                             self.dbfile.commit()
                             print("saved  : " + status.user.screen_name + "-" + filename + ext)
                             if tags != []:
@@ -130,7 +132,7 @@ class StreamListener(tp.StreamListener):
         self.file_md5 = []
         self.dbfile = sqlite3.connect(self.base_path + "list.db")
         try:
-            self.dbfile.execute("create table list (filename, username, url, fav, retweet, tags)")
+            self.dbfile.execute("create table list (filename, username, url, fav, retweet, tags, time)")
         except:
             None
 
@@ -145,7 +147,7 @@ def main():
             stream.userstream()
         except KeyboardInterrupt:
             exit()
-        except tp.error.TweepError:
+        except:
             print('UserStream Error')
             time.sleep(60)
 
