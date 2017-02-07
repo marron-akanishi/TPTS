@@ -28,7 +28,7 @@ def main():
             stream.userstream()
         except KeyboardInterrupt:
             exit()
-        except tp.error.TweepError:
+        except:
             print('UserStream Error')
             time.sleep(60)
 
