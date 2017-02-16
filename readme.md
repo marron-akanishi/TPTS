@@ -8,7 +8,7 @@ lbpcascade_animeface.xml -> 顔検出用ファイル([lbpcascade_animeface](http
 detector.svm -> 目検出用ファイル  
 
 ## 使用方法(簡易版)  
-一応、開発者はWindows10とmacOS Sierraでの動作を確認しています。  
+一応、開発者はWindows10での動作を確認しています。  
 まず、最新版のPython3をインストールします。  
 その後、pipを使ってtweepyとopencv-pythonをインストールします。  
 次に、templete内にあるoauth_empty.pyにTwitterのAPI情報を入力し、oauth.pyという名前でTL_dlib.pyと同じ位置に置きます。  
