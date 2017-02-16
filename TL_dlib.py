@@ -81,7 +81,7 @@ class StreamListener(tp.StreamListener):
                     faces = self.cascade.detectMultiScale(image,\
                                                         scaleFactor=1.11,\
                                                         minNeighbors=2,\
-                                                        minSize=(128, 128))
+                                                        minSize=(64, 64))
                     # 二次元の顔が検出できない場合
                     if len(faces) <= 0:
                         print("skiped : " + status.user.screen_name + "-" + filename + ext)
