@@ -2,7 +2,7 @@ import os
 import cv2
 
 # 元ファイルを置くフォルダー
-file_dir = "./pos/"
+file_dir = "./base/"
 # 顔検出が出来たファイルを置くフォルダー
 raw_dir = "./raw/"
 if os.path.exists(raw_dir) == False:
