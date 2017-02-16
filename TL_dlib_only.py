@@ -86,8 +86,6 @@ class StreamListener(tp.StreamListener):
                         eye = False #目の状態
                         # 顔だけ切り出して目の検索
                         for i, area in enumerate(faces):
-                            #顔のエリアに四角を書く(デバッグ)
-                            cv2.rectangle(image, (d.left(),d.top()), (d.right(),d.left()), (255,0,0), 2)
                             face = image[area.top():area.bottom(), area.left():area.right()]
                             # 出来た画像から目を検出
                             eyes = self.eye_detector(face)

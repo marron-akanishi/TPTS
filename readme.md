@@ -22,4 +22,7 @@ movie_face.py -> 動画ファイルから顔を検出(フォルダー等はス�
 TL.py, test.py -> 残骸  
 templete/md5.py -> 重複検索  
 templete/user_TL.py -> 特定ユーザーの画像をダウンロード  
-bot.py -> リプで指定したファイルを返信する(ほとんど個人向け)
+bot.py -> リプで指定したファイルを返信する(ほとんど個人向け)  
+TL_dlib_only.py -> 検出をすべてdlibに移行したバージョン(dlib必須)  
+training.py -> dlibで学習をさせる(svnファイル生成)  
+trainxml_maker.py -> 顔検出をし、↑で使うXMLを自動出力する  
