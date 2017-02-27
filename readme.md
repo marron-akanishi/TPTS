@@ -5,7 +5,7 @@ Twitterのタイムラインに流れてきた画像のうち、二次元画像�
 TL_dlib.py -> スクリプト本体  
 oauth.py -> Twitter認証用スクリプト(templete内にあります)  
 lbpcascade_animeface.xml -> 顔検出用ファイル([lbpcascade_animeface](https://github.com/nagadomi/lbpcascade_animeface)からお借りしました)  
-detector.svm -> 目検出用ファイル  
+detector_eye.svm -> 目検出用ファイル  
 
 ## 使用方法(簡易版)  
 一応、開発者はWindows10での動作を確認しています。  
@@ -24,5 +24,6 @@ templete/md5.py -> 重複検索
 templete/user_TL.py -> 特定ユーザーの画像をダウンロード  
 bot.py -> リプで指定したファイルを返信する(ほとんど個人向け)  
 TL_dlib_only.py -> 検出をすべてdlibに移行したバージョン(dlib必須)  
+detector_face.svm -> ↑のファイルで使う顔検出用ファイル  
 training.py -> dlibで学習をさせる(svnファイル生成)  
 trainxml_maker.py -> 顔検出をし、↑で使うXMLを自動出力する  

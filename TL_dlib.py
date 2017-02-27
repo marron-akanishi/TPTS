@@ -24,7 +24,7 @@ class StreamListener(tp.StreamListener):
         # 検出に必要なファイル
         self.cascade = cv2.CascadeClassifier("lbpcascade_animeface.xml")
         if use_dlib:
-            self.eye_detector = dlib.simple_object_detector("detector.svm")
+            self.eye_detector = dlib.simple_object_detector("detector_eye.svm")
 
     def on_status(self, status):
         """UserStreamから飛んできたStatusを処理する"""
