@@ -105,11 +105,11 @@ class StreamListener(tp.StreamListener):
                             # 取得済みとしてMD5を保存
                             self.file_md5.append(current_md5)
                             # ハッシュタグがあれば保存する
-                            text_split = status.text.split(" ")
                             tags = []
-                            for tag_text in text_split:
-                                if tag_text.startswith('#'):
-                                    tags.append(tag_text.lstrip("#").split("\n")[0].split("　")[0])
+                            if hasattr(status, "entities"):
+                                if "hashtags" in status.entities:
+                                    for hashtag in status.entities['hashtags']:
+                                        tags.append(hashtag['text'])
                             # データベースに保存
                             url = "https://twitter.com/" + status.user.screen_name + "/status/" + status.id_str
                             self.dbfile.execute("insert into list values('" + filename + ext + "','" + \
