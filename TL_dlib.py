@@ -87,6 +87,10 @@ class StreamListener(tp.StreamListener):
                         print("skiped : " + status.user.screen_name + "-" + filename + ext)
                     else:
                         eye = False #目の状態
+                        facex = []
+                        facey = []
+                        facew = []
+                        faceh = []
                         if use_dlib:
                             # 顔だけ切り出して目の検索
                             for i, area in enumerate(faces):
@@ -95,6 +99,10 @@ class StreamListener(tp.StreamListener):
                                 # 出来た画像から目を検出
                                 eyes = self.eye_detector(face)
                                 if len(eyes) > 0:
+                                    facex.append(x)
+                                    facey.append(y)
+                                    facew.append(width)
+                                    faceh.append(height)
                                     eye = True
                         # 目があったなら画像本体を保存
                         if use_dlib == False or eye:
@@ -114,7 +122,8 @@ class StreamListener(tp.StreamListener):
                             url = "https://twitter.com/" + status.user.screen_name + "/status/" + status.id_str
                             self.dbfile.execute("insert into list values('" + filename + ext + "','" + \
                                 status.user.screen_name + "','" + url + "'," + str(status.favorite_count) + "," + \
-                                str(status.retweet_count) + ",'" + str(tags).replace("'","") + "','" + str(datetime.datetime.now()) +"')")
+                                str(status.retweet_count) + ",'" + str(tags).replace("'","") + "','" + str(datetime.datetime.now()) + \
+                                "','" + str(facex) + "','" + str(facey) + "','" + str(facew) + "','" + str(faceh) +"')")
                             self.dbfile.commit()
                             print("saved  : " + status.user.screen_name + "-" + filename + ext)
                             if tags != []:
@@ -132,7 +141,7 @@ class StreamListener(tp.StreamListener):
         self.file_md5 = []
         self.dbfile = sqlite3.connect(self.base_path + "list.db")
         try:
-            self.dbfile.execute("create table list (filename, username, url, fav, retweet, tags, time)")
+            self.dbfile.execute("create table list (filename, username, url, fav, retweet, tags, time, facex, facey, facew, faceh)")
         except:
             None
 
