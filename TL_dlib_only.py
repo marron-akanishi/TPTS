@@ -1,3 +1,5 @@
+# printで表示する状態情報は半角6文字以内にすること
+
 import os
 import time
 import datetime
@@ -90,6 +92,10 @@ class StreamListener(tp.StreamListener):
                         faceh = []
                         # 顔だけ切り出して目の検索
                         for i, area in enumerate(faces):
+                            # 最小サイズの指定(100x100以下)
+                            if area.bottom()-area.top() < 100 or area.right()-area.left() < 100:
+                                print("SMALL  : " + status.user.screen_name + "-" + filename + ext + "_" + str(i))
+                                continue
                             face = image[area.top():area.bottom(), area.left():area.right()]
                             # 出来た画像から目を検出
                             eyes = self.eye_detector(face)
@@ -99,6 +105,8 @@ class StreamListener(tp.StreamListener):
                                 facew.append(area.right()-area.left())
                                 faceh.append(area.bottom()-area.top())
                                 eye = True
+                            else:
+                                print("NOEYE  : " + status.user.screen_name + "-" + filename + ext + "_" + str(i))
                         # 目があったなら画像本体を保存
                         if eye:
                             # 保存
@@ -125,7 +133,7 @@ class StreamListener(tp.StreamListener):
                                 print("  tags : " + str(tags))
                             self.fileno += 1
                         else:
-                            print("noEye  : " + status.user.screen_name + "-" + filename + ext)
+                            print("skiped : " + status.user.screen_name + "-" + filename + ext)
         
     def mkdir(self):
         """保存用のフォルダーを生成し、必要な変数を初期化する"""
