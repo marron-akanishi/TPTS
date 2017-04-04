@@ -123,10 +123,25 @@ class StreamListener(tp.StreamListener):
                                         tags.append(hashtag['text'])
                             # データベースに保存
                             url = "https://twitter.com/" + status.user.screen_name + "/status/" + status.id_str
+                            # 1行書きは汚い
+                            '''
                             self.dbfile.execute("insert into list values('" + filename + ext + "','" + \
                                 status.user.screen_name + "','" + url + "'," + str(status.favorite_count) + "," + \
                                 str(status.retweet_count) + ",'" + str(tags).replace("'","") + "','" + str(datetime.datetime.now()) + \
                                 "','" + str(facex) + "','" + str(facey) + "','" + str(facew) + "','" + str(faceh) +"')")
+                            '''
+                            # 1つずつに分けてみる
+                            self.dbfile.execute("insert into list(filename) values('" + filename + ext + "')")
+                            self.dbfile.execute("update list set username = '" + status.user.screen_name + "' where filename = '" + filename + ext + "'")
+                            self.dbfile.execute("update list set url = '" + url + "' where filename = '" + filename + ext + "'")
+                            self.dbfile.execute("update list set fav = '" + str(status.favorite_count) + "' where filename = '" + filename + ext + "'")
+                            self.dbfile.execute("update list set retweet = '" + str(status.retweet_count) + "' where filename = '" + filename + ext + "'")
+                            self.dbfile.execute("update list set tags = '" + str(tags).replace("'","") + "' where filename = '" + filename + ext + "'")
+                            self.dbfile.execute("update list set time = '" + str(datetime.datetime.now()) + "' where filename = '" + filename + ext + "'")
+                            self.dbfile.execute("update list set facex = '" + str(facex) + "' where filename = '" + filename + ext + "'")
+                            self.dbfile.execute("update list set facey = '" + str(facey) + "' where filename = '" + filename + ext + "'")
+                            self.dbfile.execute("update list set facew = '" + str(facew) + "' where filename = '" + filename + ext + "'")
+                            self.dbfile.execute("update list set faceh = '" + str(faceh) + "' where filename = '" + filename + ext + "'")
                             self.dbfile.commit()
                             print("saved  : " + status.user.screen_name + "-" + filename + ext)
                             if tags != []:
