@@ -79,7 +79,9 @@ class StreamListener(tp.StreamListener):
                     if current_md5 in self.file_md5:
                         print("geted  : " + status.user.screen_name +"-" + filename + ext)
                         continue
+                    # 画像をメモリー上にデコード
                     image = cv2.imdecode(np.asarray(bytearray(temp_file), dtype=np.uint8), 1)
+                    # 画像から顔を検出
                     faces = self.face_detector(image)
                     # 二次元の顔が検出できない場合
                     if len(faces) <= 0:
@@ -90,6 +92,20 @@ class StreamListener(tp.StreamListener):
                         facey = []
                         facew = []
                         faceh = []
+                        # CPU使用率低減のためにここでチェックをかける
+                        # 画像のハッシュを生成
+                        current_hash = dhash_calc(image)
+                        # すでに取得済みの画像は飛ばす
+                        overlaped = False
+                        for hash_key in self.file_hash:
+                            check = int(hash_key,16) ^ int(current_hash,16)
+                            count = bin(check).count('1')
+                            if count < 7:
+                                print("geted  : " + status.user.screen_name +"-" + filename + ext)
+                                overlaped = True
+                                break
+                        if overlaped:
+                            continue
                         # 顔だけ切り出して目の検索
                         for i, area in enumerate(faces):
                             # 最小サイズの指定(100x100以下)
@@ -113,7 +129,8 @@ class StreamListener(tp.StreamListener):
                             out = open(self.base_path + filename + ext, "wb")
                             out.write(temp_file)
                             out.close()
-                            # 取得済みとしてMD5を保存
+                            # 取得済みとしてハッシュ値を保存
+                            self.file_hash.append(current_hash)
                             self.file_md5.append(current_md5)
                             # ハッシュタグがあれば保存する
                             tags = []
@@ -123,14 +140,6 @@ class StreamListener(tp.StreamListener):
                                         tags.append(hashtag['text'])
                             # データベースに保存
                             url = "https://twitter.com/" + status.user.screen_name + "/status/" + status.id_str
-                            # 1行書きは汚い
-                            '''
-                            self.dbfile.execute("insert into list values('" + filename + ext + "','" + \
-                                status.user.screen_name + "','" + url + "'," + str(status.favorite_count) + "," + \
-                                str(status.retweet_count) + ",'" + str(tags).replace("'","") + "','" + str(datetime.datetime.now()) + \
-                                "','" + str(facex) + "','" + str(facey) + "','" + str(facew) + "','" + str(faceh) +"')")
-                            '''
-                            # 1つずつに分けてみる
                             self.dbfile.execute("insert into list(filename) values('" + filename + ext + "')")
                             self.dbfile.execute("update list set username = '" + status.user.screen_name + "' where filename = '" + filename + ext + "'")
                             self.dbfile.execute("update list set url = '" + url + "' where filename = '" + filename + ext + "'")
@@ -156,6 +165,7 @@ class StreamListener(tp.StreamListener):
         if os.path.exists(self.base_path) == False:
             os.mkdir(self.base_path)
         self.fileno = 0
+        self.file_hash = []
         self.file_md5 = []
         self.dbfile = sqlite3.connect(self.base_path + "list.db")
         try:
@@ -163,6 +173,26 @@ class StreamListener(tp.StreamListener):
         except:
             None
 
+def dhash_calc(image,hash_size = 7):
+    check_image = cv2.resize(image,(hash_size,hash_size+1))
+    check_image = cv2.cvtColor(check_image, cv2.COLOR_RGB2GRAY)
+    # Compare adjacent pixels.
+    difference = []
+    for row in range(hash_size):
+        for col in range(hash_size):
+            pixel_left = check_image[col, row]
+            pixel_right = check_image[col + 1, row]
+            difference.append(pixel_left > pixel_right)
+    # Convert the binary array to a hexadecimal string.
+    decimal_value = 0
+    hex_string = []
+    for index, value in enumerate(difference):
+        if value:
+            decimal_value += 2**(index % 8)
+        if (index % 8) == 7:
+            hex_string.append(hex(decimal_value)[2:].rjust(2, '0'))
+            decimal_value = 0
+    return ''.join(hex_string)
 
 def main():
     """メイン関数"""
@@ -177,6 +207,6 @@ def main():
         except:
             print('UserStream Error')
             time.sleep(60)
-
+        
 if __name__ == '__main__':
     main()
