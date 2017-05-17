@@ -69,7 +69,7 @@ class StreamListener(tp.StreamListener):
                     filename = str(self.fileno).zfill(5)
                     # ダウンロード
                     try:
-                        temp_file = urllib.request.urlopen(media_url + ":large").read()
+                        temp_file = urllib.request.urlopen(media_url + ":orig").read()
                     except:
                         print("Download Error")
                         continue
