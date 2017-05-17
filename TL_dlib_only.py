@@ -108,9 +108,10 @@ class StreamListener(tp.StreamListener):
                             continue
                         # 顔だけ切り出して目の検索
                         for i, area in enumerate(faces):
-                            # 最小サイズの指定(100x100以下)
-                            if area.bottom()-area.top() < 100 or area.right()-area.left() < 100:
+                            # 最小サイズの指定
+                            if area.bottom()-area.top() < image.shape[0]*0.075 or area.right()-area.left() < image.shape[1]*0.075:
                                 print("SMALL  : " + status.user.screen_name + "-" + filename + ext + "_" + str(i))
+                                #print("DEBUG  : " + str(area.bottom()-area.top()) + "x" + str(area.right()-area.left()) + " - " + str(image.shape[0]) + "x" + str(image.shape[1]))
                                 continue
                             face = image[area.top():area.bottom(), area.left():area.right()]
                             # 出来た画像から目を検出
