@@ -17,7 +17,7 @@ except ImportError:
     print("Please install dlib")
     exit()
 
-key = '71bbbf3df1c87a64a8fb8724993117062cf92e019efa6725879866e3dc3de6e6'
+key = ''
 
 class MstdnStream:
     """Mastodon Steam Class
