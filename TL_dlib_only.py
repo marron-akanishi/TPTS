@@ -7,15 +7,8 @@ import hashlib
 import urllib
 import sqlite3
 import tweepy as tp
-import numpy as np
-import cv2
-import oauth  # oauthの認証キー
-try:
-    import dlib
-    use_dlib = True
-except ImportError:
-    print("Please install dlib")
-    exit()
+import detector
+import oauth
 
 class StreamListener(tp.StreamListener):
     def __init__(self, api):
@@ -24,9 +17,6 @@ class StreamListener(tp.StreamListener):
         # 保存先
         self.old_date = datetime.date.today()
         self.mkdir()
-        # 検出に必要なファイル
-        self.face_detector = dlib.simple_object_detector("detector_face.svm")
-        self.eye_detector = dlib.simple_object_detector("detector_eye.svm")
 
     def on_status(self, status):
         """UserStreamから飛んできたStatusを処理する"""
@@ -79,22 +69,10 @@ class StreamListener(tp.StreamListener):
                     if current_md5 in self.file_md5:
                         print("geted  : " + status.user.screen_name +"-" + filename + ext)
                         continue
-                    # 画像をメモリー上にデコード
-                    image = cv2.imdecode(np.asarray(bytearray(temp_file), dtype=np.uint8), 1)
-                    # 画像から顔を検出
-                    faces = self.face_detector(image)
-                    # 二次元の顔が検出できない場合
-                    if len(faces) <= 0:
-                        print("skiped : " + status.user.screen_name + "-" + filename + ext)
-                    else:
-                        eye = False #目の状態
-                        facex = []
-                        facey = []
-                        facew = []
-                        faceh = []
-                        # CPU使用率低減のためにここでチェックをかける
-                        # 画像のハッシュを生成
-                        current_hash = dhash_calc(image)
+                    # 画像判定呼出
+                    current_hash = None
+                    current_hash, facex, facey, facew, faceh = detector.face_2d(temp_file, status.user.screen_name, filename + ext)
+                    if current_hash is not None:
                         # すでに取得済みの画像は飛ばす
                         overlaped = False
                         for hash_key in self.file_hash:
@@ -104,28 +82,8 @@ class StreamListener(tp.StreamListener):
                                 print("geted  : " + status.user.screen_name +"-" + filename + ext)
                                 overlaped = True
                                 break
-                        if overlaped:
-                            continue
-                        # 顔だけ切り出して目の検索
-                        for i, area in enumerate(faces):
-                            # 最小サイズの指定
-                            if area.bottom()-area.top() < image.shape[0]*0.075 or area.right()-area.left() < image.shape[1]*0.075:
-                                print("SMALL  : " + status.user.screen_name + "-" + filename + ext + "_" + str(i))
-                                #print("DEBUG  : " + str(area.bottom()-area.top()) + "x" + str(area.right()-area.left()) + " - " + str(image.shape[0]) + "x" + str(image.shape[1]))
-                                continue
-                            face = image[area.top():area.bottom(), area.left():area.right()]
-                            # 出来た画像から目を検出
-                            eyes = self.eye_detector(face)
-                            if len(eyes) > 0:
-                                facex.append(area.left())
-                                facey.append(area.top())
-                                facew.append(area.right()-area.left())
-                                faceh.append(area.bottom()-area.top())
-                                eye = True
-                            else:
-                                print("NOEYE  : " + status.user.screen_name + "-" + filename + ext + "_" + str(i))
-                        # 目があったなら画像本体を保存
-                        if eye:
+                        # 画像本体を保存
+                        if overlaped != True:
                             # 保存
                             out = open(self.base_path + filename + ext, "wb")
                             out.write(temp_file)
@@ -157,9 +115,8 @@ class StreamListener(tp.StreamListener):
                             if tags != []:
                                 print("  tags : " + str(tags))
                             self.fileno += 1
-                        else:
-                            print("skiped : " + status.user.screen_name + "-" + filename + ext)
-        
+                    temp_file = None
+
     def mkdir(self):
         """保存用のフォルダーを生成し、必要な変数を初期化する"""
         self.base_path = "./" + self.old_date.isoformat() + "/"
@@ -174,27 +131,6 @@ class StreamListener(tp.StreamListener):
         except:
             None
 
-def dhash_calc(image,hash_size = 7):
-    check_image = cv2.resize(image,(hash_size,hash_size+1))
-    check_image = cv2.cvtColor(check_image, cv2.COLOR_RGB2GRAY)
-    # Compare adjacent pixels.
-    difference = []
-    for row in range(hash_size):
-        for col in range(hash_size):
-            pixel_left = check_image[col, row]
-            pixel_right = check_image[col + 1, row]
-            difference.append(pixel_left > pixel_right)
-    # Convert the binary array to a hexadecimal string.
-    decimal_value = 0
-    hex_string = []
-    for index, value in enumerate(difference):
-        if value:
-            decimal_value += 2**(index % 8)
-        if (index % 8) == 7:
-            hex_string.append(hex(decimal_value)[2:].rjust(2, '0'))
-            decimal_value = 0
-    return ''.join(hex_string)
-
 def main():
     """メイン関数"""
     auth = oauth.get_oauth()
@@ -208,6 +144,6 @@ def main():
         except:
             print('UserStream Error')
             time.sleep(60)
-        
+
 if __name__ == '__main__':
     main()

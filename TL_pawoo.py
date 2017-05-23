@@ -8,14 +8,6 @@ import sqlite3
 import json
 import operator
 import requests
-import numpy as np
-import cv2
-try:
-    import dlib
-    use_dlib = True
-except ImportError:
-    print("Please install dlib")
-    exit()
 
 key = ''
 
@@ -104,22 +96,10 @@ class MstdnStreamListner:
             if current_md5 in self.file_md5:
                 print("geted  : " + status['account']['acct'] +"-" + filename + ext)
                 continue
-            # 画像をメモリー上にデコード
-            image = cv2.imdecode(np.asarray(bytearray(temp_file), dtype=np.uint8), 1)
-            # 画像から顔を検出
-            faces = self.face_detector(image)
-            # 二次元の顔が検出できない場合
-            if len(faces) <= 0:
-                print("skiped : " + status['account']['acct'] + "-" + filename + ext)
-            else:
-                eye = False #目の状態
-                facex = []
-                facey = []
-                facew = []
-                faceh = []
-                # CPU使用率低減のためにここでチェックをかける
-                # 画像のハッシュを生成
-                current_hash = dhash_calc(image)
+            # 画像検出
+            current_hash = None
+            current_hash, facex, facey, facew, faceh = detector.face_2d(temp_file, status['account']['acct'], filename + ext)
+            if current_hash is not None:
                 # すでに取得済みの画像は飛ばす
                 overlaped = False
                 for hash_key in self.file_hash:
@@ -129,27 +109,8 @@ class MstdnStreamListner:
                         print("geted  : " + status['account']['acct'] +"-" + filename + ext)
                         overlaped = True
                         break
-                if overlaped:
-                    continue
-                # 顔だけ切り出して目の検索
-                for i, area in enumerate(faces):
-                    # 最小サイズの指定
-                    if area.bottom()-area.top() < image.shape[0]*0.075 or area.right()-area.left() < image.shape[1]*0.075:
-                        print("SMALL  : " + status['account']['acct'] + "-" + filename + ext + "_" + str(i))
-                        continue
-                    face = image[area.top():area.bottom(), area.left():area.right()]
-                    # 出来た画像から目を検出
-                    eyes = self.eye_detector(face)
-                    if len(eyes) > 0:
-                        facex.append(area.left())
-                        facey.append(area.top())
-                        facew.append(area.right()-area.left())
-                        faceh.append(area.bottom()-area.top())
-                        eye = True
-                    else:
-                        print("NOEYE  : " + status['account']['acct'] + "-" + filename + ext + "_" + str(i))
-                # 目があったなら画像本体を保存
-                if eye:
+                # 画像本体を保存
+                if overlaped != True:
                     # 保存
                     out = open(self.base_path + filename + ext, "wb")
                     out.write(temp_file)
@@ -181,6 +142,7 @@ class MstdnStreamListner:
                     self.fileno += 1
                 else:
                     print("skiped : " + status['account']['acct'] + "-" + filename + ext)
+            temp_file = None
         
     def mkdir(self):
         """保存用のフォルダーを生成し、必要な変数を初期化する"""
@@ -202,27 +164,6 @@ class MstdnStreamListner:
     def on_delete(self, data):
         None
 
-def dhash_calc(image,hash_size = 7):
-    check_image = cv2.resize(image,(hash_size,hash_size+1))
-    check_image = cv2.cvtColor(check_image, cv2.COLOR_RGB2GRAY)
-    # Compare adjacent pixels.
-    difference = []
-    for row in range(hash_size):
-        for col in range(hash_size):
-            pixel_left = check_image[col, row]
-            pixel_right = check_image[col + 1, row]
-            difference.append(pixel_left > pixel_right)
-    # Convert the binary array to a hexadecimal string.
-    decimal_value = 0
-    hex_string = []
-    for index, value in enumerate(difference):
-        if value:
-            decimal_value += 2**(index % 8)
-        if (index % 8) == 7:
-            hex_string.append(hex(decimal_value)[2:].rjust(2, '0'))
-            decimal_value = 0
-    return ''.join(hex_string)
-
 def main():
     listener = MstdnStreamListner()
     stream = MstdnStream('https://pawoo.net', key, listener)
@@ -232,6 +173,9 @@ def main():
             stream.local()
         except KeyboardInterrupt:
             exit()
+        except:
+            print('UserStream Error')
+            time.sleep(60)
 
 if __name__ == '__main__':
     main()
