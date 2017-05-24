@@ -20,10 +20,9 @@ TL_dlib.pyを開き、`# 自分のツイートは飛ばす`と書かれた行の
 local.py -> ローカルファイルから顔を検出(フォルダー等はスクリプト参照)  
 movie_face.py -> 動画ファイルから顔を検出(フォルダー等はスクリプト参照)  
 TL.py, test.py -> 残骸  
-templete/md5.py -> 重複検索  
-templete/user_TL.py -> 特定ユーザーの画像をダウンロード  
 bot.py -> リプで指定したファイルを返信する(ほとんど個人向け)  
 TL_dlib_only.py -> 検出をすべてdlibに移行したバージョン(dlib必須)  
 detector_face.svm -> ↑のファイルで使う顔検出用ファイル  
 training.py -> dlibで学習をさせる(svnファイル生成)  
 trainxml_maker.py -> 顔検出をし、↑で使うXMLを自動出力する  
+TL_pawoo.py -> TP_dlib_onlyのPawoo版(keyに認証キーが必要)
