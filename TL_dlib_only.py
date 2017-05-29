@@ -49,7 +49,7 @@ class StreamListener(tp.StreamListener):
         # 画像がついていたとき
         if is_media:
             # 自分のツイートは飛ばす
-            if status.user.screen_name != "marron_general" and status.user.screen_name != "marron_recbot":
+            if status.user.screen_name != "marron_general":
                 for image in status_media['media']:
                     if image['type'] != 'photo':
                         break

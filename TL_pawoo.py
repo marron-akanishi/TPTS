@@ -8,6 +8,7 @@ import sqlite3
 import json
 import operator
 import requests
+import detector
 
 key = ''
 
@@ -63,9 +64,6 @@ class MstdnStreamListner:
         # 保存先
         self.old_date = datetime.date.today()
         self.mkdir()
-        # 検出に必要なファイル
-        self.face_detector = dlib.simple_object_detector("detector_face.svm")
-        self.eye_detector = dlib.simple_object_detector("detector_eye.svm")
 
     def on_update(self, data):
         """UserStreamから飛んできたStatusを処理する"""
