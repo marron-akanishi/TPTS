@@ -6,16 +6,6 @@ import tweepy as tp
 import cv2
 import oauth  # oauthの認証キー
 
-def get_oauth():
-    """oauth.pyのoauth_keysから各種キーを取得し、OAUTH認証を行う"""
-    consumer_key, consumer_secret = \
-        oauth.oauth_keys['CONSUMMER_KEY'], oauth.oauth_keys['CONSUMMER_SECRET']
-    access_key, access_secret = \
-        oauth.oauth_keys['ACCESS_TOKEN_KEY'], oauth.oauth_keys['ACCESS_TOKEN_SECRET']
-    auth = tp.OAuthHandler(consumer_key, consumer_secret)
-    auth.set_access_token(access_key, access_secret)
-    return auth
-
 class StreamListener(tp.StreamListener):
     # フォルダー作成用
     def mkdir(self):
@@ -31,8 +21,8 @@ class StreamListener(tp.StreamListener):
         self.fileno = 0
         self.file_md5 = []
 
-    def __init__(self, api=None):
-        self.api = api or tp.API()
+    def __init__(self, api):
+        self.api = api
         # 保存先
         self.old_date = datetime.date.today()
         self.mkdir()
@@ -61,10 +51,7 @@ class StreamListener(tp.StreamListener):
         # 画像がついていたとき
         if is_media:
             # 自分のツイートは飛ばす
-            if status.user.screen_name == "marron_general":
-                is_get = False
-            # 取得開始
-            if is_get:
+            if status.user.screen_name != "marron_general":
                 for image in status_media['media']:
                     is_geted = False
                     if image['type'] != 'photo':
@@ -102,10 +89,9 @@ class StreamListener(tp.StreamListener):
 
 
 def main():
-    auth = get_oauth()
-    tp.API(auth)
+    auth = oauth.get_oauth()
     print('Start Streaming!')
-    stream = tp.Stream(auth, StreamListener(), secure=True)
+    stream = tp.Stream(auth, StreamListener(tp.API(auth)), secure=True)
     stream.userstream()
 
 if __name__ == '__main__':
