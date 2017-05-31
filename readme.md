@@ -1,6 +1,5 @@
 # Timeline Picture Tagging System  
-Twitterのタイムラインに流れてきた画像のうち、二次元画像を判定して保存します。  
-また、ハッシュタグをタグとして画像に結びつけます。   
+Twitterのタイムラインに流れてきた画像のうち、二次元画像を判定して保存します。     
 このリポジトリは参考程度に使用し、動作させる場合は[TPTS_Web](https://github.com/marron-akanishi/TPTS_web)を使用してください。  
 
 # これより下は非常に説明が曖昧です
@@ -15,10 +14,13 @@ detector_eye.svm -> 目検出用ファイル
 ## 使用方法(簡易版)  
 開発者はWindows10での動作を確認しています。  
 ですが、非常に導入が面倒なのでローカルで走らせる場合は、  
-Linux上で[TPTS_Web](https://github.com/marron-akanishi/TPTS_web)のReadmeを参照にしてライブラリーを入れてください。    
-ライブラリーの導入が終わったら、templete内にあるoauth_empty.pyにTwitterのAPI情報を入力し、oauth.pyという名前でTL_twitter.pyと同じ位置に置きます。  
-TL_dlib.pyを開き、`# 自分のツイートは飛ばす`と書かれた行の下にある`marron_general`を自分のIDに変更して保存します。  
-これで実行が可能になります。  
+Linux上で[TPTS_Web](https://github.com/marron-akanishi/TPTS_web)のReadmeを参照にして環境を構築してください。  
+環境が構築できたら、templete内にあるoauth_empty.pyにTwitterのAPI情報を入力し、oauth.pyという名前でTL_twitter.pyと同じ位置に置きます。  
+TL_twitter.pyを開き、`# 自分のツイートは飛ばす`と書かれた行の下にある`marron_general`を自分のIDに変更して保存します。  
+その後、Python3でTL_twitter.pyを実行します。  
+実行が成功すると、収集できた画像が日付の付いたフォルダーに保存されていきます。  
+また、日付フォルダー内のlist.dbに画像に関する情報が保存されていきます。  
+このlist.dbは[TPTSViewer](https://github.com/marron-akanishi/TPTSViewer)で確認可能ですが、このツールはWindowsでしか動作しません。  
 
 ## メモ  
 ### oldフォルダー内  
