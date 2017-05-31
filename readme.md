@@ -1,5 +1,6 @@
 # Timeline Picture Tagging System  
-Twitterのタイムラインに流れてきた画像のうち、二次元画像のみを取得し、自動的にタグ付けします(多分)。  
+Twitterのタイムラインに流れてきた画像のうち、二次元画像を判定して保存します。  
+また、ハッシュタグをタグとして画像に結びつけます。   
 このリポジトリは参考程度に使用し、動作させる場合は[TPTS_Web](https://github.com/marron-akanishi/TPTS_web)を使用してください。  
 
 # これより下は非常に説明が曖昧です
@@ -25,7 +26,6 @@ TL_dlib.pyを開き、`# 自分のツイートは飛ばす`と書かれた行の
 また、中にあるlbpcascade_animeface.xmlは[lbpcascade_animeface](https://github.com/nagadomi/lbpcascade_animeface)からお借りしました。
 
 ### templeteフォルダー内  
-
 - oauth_empty.py -> TwitterAPIの認証情報を生成するスクリプトのテンプレート
 - TL_nocheck.py -> タイムラインに流れてきた画像を全て回収します。(oauth.py必須)
 
