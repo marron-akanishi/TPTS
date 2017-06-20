@@ -17,6 +17,7 @@ class StreamListener(tp.StreamListener):
         # 保存先
         self.old_date = datetime.date.today()
         self.mkdir()
+        self.file_md5 = []
 
     def on_status(self, status):
         """UserStreamから飛んできたStatusを処理する"""
@@ -48,6 +49,7 @@ class StreamListener(tp.StreamListener):
 
         # 画像がついていたとき
         if is_media:
+            tweet_md5 = []
             # 自分のツイートは飛ばす
             if status.user.screen_name != "marron_general":
                 for image in status_media['media']:
@@ -79,18 +81,28 @@ class StreamListener(tp.StreamListener):
                             check = int(hash_key,16) ^ int(current_hash,16)
                             count = bin(check).count('1')
                             if count < 7:
-                                print("geted  : " + status.user.screen_name +"-" + filename + ext)
                                 overlaped = True
                                 break
+                        # 取得済みとなった際に同一ツイート内で違うMD5であれば取得する
+                        if overlaped:
+                            if current_md5 in tweet_md5:
+                                overlaped = False
+                            else:
+                                print("geted  : " + status.user.screen_name +"-" + filename + ext)
                         # 画像本体を保存
-                        if overlaped != True:
+                        if overlaped == False:
                             # 保存
                             out = open(self.base_path + filename + ext, "wb")
                             out.write(temp_file)
                             out.close()
                             # 取得済みとしてハッシュ値を保存
                             self.file_hash.append(current_hash)
+                            # MD5値は過去5000個を持っておく
+                            if len(self.file_md5) >= 5000:
+                                del self.file_md5[0]
                             self.file_md5.append(current_md5)
+                            # 同一ツイート内画像
+                            tweet_md5.append(current_md5)
                             # ハッシュタグがあれば保存する
                             tags = []
                             if hasattr(status, "entities"):
@@ -124,7 +136,6 @@ class StreamListener(tp.StreamListener):
             os.mkdir(self.base_path)
         self.fileno = 0
         self.file_hash = []
-        self.file_md5 = []
         self.dbfile = sqlite3.connect(self.base_path + "list.db")
         try:
             self.dbfile.execute("create table list (filename, username, url, fav, retweet, tags, time, facex, facey, facew, faceh)")
