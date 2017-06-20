@@ -49,7 +49,7 @@ class StreamListener(tp.StreamListener):
 
         # 画像がついていたとき
         if is_media:
-            tweet_md5 = []
+            tweet_hash = []
             # 自分のツイートは飛ばす
             if status.user.screen_name != "marron_general":
                 for image in status_media['media']:
@@ -77,18 +77,24 @@ class StreamListener(tp.StreamListener):
                     if current_hash is not None:
                         # すでに取得済みの画像は飛ばす
                         overlaped = False
-                        for hash_key in self.file_hash:
+                        for hash_key in tweet_hash:
                             check = int(hash_key,16) ^ int(current_hash,16)
                             count = bin(check).count('1')
                             if count < 7:
                                 overlaped = True
                                 break
-                        # 取得済みとなった際に同一ツイート内で違うMD5であれば取得する
-                        if overlaped:
-                            if current_md5 in tweet_md5:
-                                overlaped = False
-                            else:
-                                print("geted  : " + status.user.screen_name +"-" + filename + ext)
+                        # 同一ツイート内の場合は取得
+                        if overlaped == False:
+                            for hash_key in self.file_hash:
+                                check = int(hash_key,16) ^ int(current_hash,16)
+                                count = bin(check).count('1')
+                                if count < 7:
+                                    print("geted  : " + status.user.screen_name +"-" + filename + ext)
+                                    overlaped = True
+                                    break
+                        else:
+                            overlaped = False
+                        
                         # 画像本体を保存
                         if overlaped == False:
                             # 保存
@@ -97,12 +103,11 @@ class StreamListener(tp.StreamListener):
                             out.close()
                             # 取得済みとしてハッシュ値を保存
                             self.file_hash.append(current_hash)
+                            tweet_hash.append(current_hash)
                             # MD5値は過去5000個を持っておく
                             if len(self.file_md5) >= 5000:
                                 del self.file_md5[0]
                             self.file_md5.append(current_md5)
-                            # 同一ツイート内画像
-                            tweet_md5.append(current_md5)
                             # ハッシュタグがあれば保存する
                             tags = []
                             if hasattr(status, "entities"):
@@ -112,6 +117,7 @@ class StreamListener(tp.StreamListener):
                             # データベースに保存
                             url = "https://twitter.com/" + status.user.screen_name + "/status/" + status.id_str
                             self.dbfile.execute("insert into list(filename) values('" + filename + ext + "')")
+                            self.dbfile.execute("update list set image = '" + media_url + "' where filename = '" + filename + ext + "'")
                             self.dbfile.execute("update list set username = '" + status.user.screen_name + "' where filename = '" + filename + ext + "'")
                             self.dbfile.execute("update list set url = '" + url + "' where filename = '" + filename + ext + "'")
                             self.dbfile.execute("update list set fav = " + str(status.favorite_count) + " where filename = '" + filename + ext + "'")
@@ -134,13 +140,19 @@ class StreamListener(tp.StreamListener):
         self.base_path = "./" + self.old_date.isoformat() + "/"
         if os.path.exists(self.base_path) == False:
             os.mkdir(self.base_path)
-        self.fileno = 0
+        dbpath = self.base_path + "list.db"
+        if os.path.exists(dbpath):
+            print("DB file exist")
+            self.dbfile = sqlite3.connect(dbpath)
+            cur = self.dbfile.cursor()
+            cur.execute("select count(filename) from list")
+            self.fileno = cur.fetchone()[0]
+            cur.close()
+        else:
+            self.dbfile = sqlite3.connect(dbpath)
+            self.dbfile.execute("create table list (filename, image, username, url, fav, retweet, tags, time, facex, facey, facew, faceh)")
+            self.fileno = 0
         self.file_hash = []
-        self.dbfile = sqlite3.connect(self.base_path + "list.db")
-        try:
-            self.dbfile.execute("create table list (filename, username, url, fav, retweet, tags, time, facex, facey, facew, faceh)")
-        except:
-            None
 
 def main():
     """メイン関数"""

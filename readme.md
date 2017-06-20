@@ -1,23 +1,17 @@
 # Timeline Picture Tagging System  
 Twitterのタイムラインに流れてきた画像のうち、二次元画像を判定して保存します。     
 このリポジトリは参考程度に使用し、動作させる場合は[TPTS_Web](https://github.com/marron-akanishi/TPTS_web)を使用してください。  
-特にTPTS_WebのPersonalブランチは単一ユーザーでの使用を目的に作られています。  
+特にTPTS_Webのpersonalブランチは単一ユーザーでの使用を目的に作られています。  
 
 # TPTS_Webとの違い
 基本的にTPTSの技術を多くの人に使ってもらうためにWeb版が開発されました。  
-ですが、向こうはデータベースにURLを保存するだけですが、こちらは画像本体も保存します。  
+違いとしては、画像本体も一緒に保存するかどうかぐらいです。
 画像自体が欲しい(特にデータセット目的)場合はこちらをおすすめします。
 
 # 今後の予定
 
-- 写真とイラストの判定  
-- いわゆる18禁画像かどうかの判定 
-- 髪の色の判定？？ 
-
-つまり、写真・全年齢イラスト・18禁イラストかの3種類に分類をしようと考えています。  
-これ以外の分類が思いつきません。(キャラの判定はデータ数が膨大すぎて難しい)
-
-# これより下は非常に説明が曖昧です
+- 画像の種類判定  
+- 精度の向上
 
 ## 必要なファイル  
 TL_twitter.py -> スクリプト本体  
@@ -52,8 +46,9 @@ TL_twitter.pyを開き、`# 自分のツイートは飛ばす`と書かれた行
 PawooのAPIキーが必要となります。キーを取ったあとは中の`key`に記載してください。  
 
 # 参考にしたサイト
-ほとんど忘れてしまっているので、覚えている範囲で記載しておきます。  
+覚えている範囲で
 [PythonでTwitterを使う 〜Tweepyの紹介〜 - kivantium活動日記](https://goo.gl/aE1Yi6)  
 [OpenCVによるアニメ顔検出ならlbpcascade_animeface.xml - デー](https://goo.gl/TLg4wK)  
 [dlibのSimple_Object_detectorを用いたPythonでの物体検出器の学習 - Stimulator](https://goo.gl/qWn92M)  
 [PythonのrequestsでmastodonのStreamingAPIを叩く - Qiita](https://goo.gl/xOzB5V)
+[Iconfinder: 画像データの重複チェックのアルゴリズム - ワザノバ | wazanova](https://goo.gl/HHc8fV)
